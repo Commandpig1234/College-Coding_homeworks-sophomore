@@ -1,0 +1,35 @@
+
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug C Program", // 配置名称
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe", // 要调试的程序，和tasks.json里生成的exe一致
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": true, // 为true则会弹出外部命令行窗口，按需设置
+            "MIMode": "gdb",
+            "miDebuggerPath": "D:\\MinGW\\ucrt64\\bin\\gdb.exe", // 使用系统PATH中的gdb
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel", 
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Compile and Run C" // 非常重要！在启动调试前先执行编译任务！任务名必须和tasks.json中的"label"一致
+        }
+    ]
+}
