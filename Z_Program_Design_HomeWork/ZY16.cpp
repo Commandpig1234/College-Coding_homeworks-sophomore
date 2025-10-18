@@ -17,38 +17,40 @@ int quickselect(int* arr, int low, int high, int k)
         {
             return arr[low];
         }
+        int pivot = arr[low];
+        int i = low - 1;
+        int j = high + 1;
 
-        int pivot = arr[high];
-        int i = low-1;
-
-        for (int j = low; j < high; j++)
+        while (1)
         {
-            if (arr[j] <= pivot)
+            do
             {
                 i++;
-                swap(&arr[i], &arr[j]);
+            } while (arr[i] < pivot);
+            do
+            {
+                j--;
+            } while (arr[j] > pivot);
+            if (i >= j)
+            {
+                break;
             }
+            swap(&arr[i], &arr[j]);
         }
-        swap(&arr[i + 1], &arr[high]);
-        int pivot_index = i + 1;
-        int pivot_rank = pivot_index - low + 1;
 
-        if (k == pivot_rank)
+        int left_part_size = j - low + 1;
+
+        if (k <= left_part_size)
         {
-            return arr[pivot_index];
-        }
-        else if (k < pivot_rank)
-        {
-            high = pivot_index - 1;
-            swap(&arr[high],&arr[(low+high)/2]);
+            high = j;
         }
         else
         {
-            low = pivot_index + 1;
-            swap(&arr[high],&arr[(low+high)/2]);
-            k = k - pivot_rank;
+            low = j + 1;
+            k = k - left_part_size;
         }
     }
+    return -1;
 }
 
 int main()

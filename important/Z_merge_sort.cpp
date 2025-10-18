@@ -6,7 +6,7 @@ void swap(int *l,int *r){
 	*r = tmp;
 }
 
-void merge_sort(int *p,int n){
+void merge_sort(int *p,int n){//p:首地址；n:数组size
 	if(n<=1) return;
 	int l = n/2,r = n- n/2;//把数组分成两份 
 	merge_sort(p,l);//对左边排序 
