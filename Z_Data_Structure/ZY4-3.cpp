@@ -5,6 +5,7 @@
 #include <cmath>
 
 typedef unsigned long long ull;
+typedef long long ll;
 
 using namespace std;
 
@@ -15,47 +16,56 @@ int get_precedence(char op) {
     return 0;
 }
 
-int operate(int b, int a, char op) {
+ll operate(ll b, ll a, char op) {
     if (op == '+') return a + b;
     if (op == '-') return a - b;
     if (op == '*') return a * b;
     if (op == '/') return a / b; 
     if (op == '%') return a % b; 
-    if (op == '^') return static_cast<int>(pow(a, b)); 
+    if (op == '^') return static_cast<ll>(pow(a, b)); 
     return 0; 
 }
 
 bool is_valid(const string& line) {
     if (line.empty()) return false;
 
-    int balance = 0;
+    ll balance = 0;
     for (char c : line) {
-        if (c == '(') balance++;
-        else if (c == ')') balance--;
-        if (balance < 0) return false;
+        if (c == '(')
+            balance++;
+        else if (c == ')')
+            balance--;
+        if (balance < 0)
+            return false;
     }
-    if (balance != 0) return false;
+    if (balance != 0)   {
+        return false;
+    }
+    if(get_precedence(line[0]) != 0 || get_precedence(line.back()) != 0) return false;
 
-    char first_char = line.front();
-    char last_char = line.back();
-    if (get_precedence(first_char) != 0 || first_char == ')') return false;
-    if (get_precedence(last_char) != 0 || last_char == '(') return false;
-
-    for (size_t i = 0; i < line.length() - 1; ++i) {
-        char current = line[i];
+    for (ull i = 0; i < line.length() - 1; ++i) {
+        char cur = line[i];
         char next = line[i+1];
 
-        if (isdigit(current) && (isdigit(next) || next == '(')) return false;
-        if (current == ')' && (isdigit(next) || next == '(')) return false;
-        if (get_precedence(current) != 0 && (get_precedence(next) != 0 || next == ')')) return false;
-        if (current == '(' && (get_precedence(next) != 0 || next == ')')) return false;
+        if (isdigit(cur) && next == '(') {
+            return false;
+        }
+        if (cur == ')' && (isdigit(next) || next == '(')) {
+            return false;
+        }
+        if (get_precedence(cur) != 0 && (get_precedence(next) != 0 || next == ')')) {
+            return false;
+        }
+        if (cur == '(' && (get_precedence(next) != 0 || next == ')')) {
+            return false;
+        }
     }
     
     return true;
 }
 
 void calculate(string postfix){
-    stack<int> nums;
+    stack<ll> nums;
 
     for (ull i = 0; i < postfix.length(); ++i) {
         char cur = postfix[i];
@@ -76,9 +86,9 @@ void calculate(string postfix){
                 return;
             }
 
-            int operand2 = nums.top();
+            ll operand2 = nums.top();
             nums.pop();
-            int operand1 = nums.top();
+            ll operand1 = nums.top();
             nums.pop();
             
             char op = cur;
@@ -168,7 +178,7 @@ string into_postfix(string equation){
 void solve(){
     string line;
     cin >> line;
-    stack<int> nums;
+    stack<ll> nums;
     stack<char> ops;
     string equation;
     for(ull i = 0;i<line.size();i++){
