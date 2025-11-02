@@ -1,0 +1,25 @@
+abcdefg
+
+BiTree
+a
+    b
+        d
+        e
+    c
+        f
+        g
+pre_sequence  : abdecfg
+in_sequence   : dbeafcg
+post_sequence : debfgca
+Number of leaf: 4
+BiTree swapped
+a
+    c
+        g
+        f
+    b
+        e
+        d
+pre_sequence  : acgfbed
+in_sequence   : gcfaebd
+post_sequence : gfcedba

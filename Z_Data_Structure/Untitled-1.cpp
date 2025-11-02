@@ -1,212 +1,143 @@
-#include <iostream> 
+#include <iostream>
+#include <set>
 #include <string>
-#include <stack>
-#include <cctype>
-#include <cmath>
-
-typedef unsigned long long ull;
+#include <algorithm>
 
 using namespace std;
 
-int get_precedence(char op) {
-    if (op == '+' || op == '-') return 1;
-    if (op == '*' || op == '/' || op == '%') return 2;
-    if (op == '^') return 3;
-    return 0;
-}
+typedef unsigned long long ull;
+typedef set<string> pack;
 
-int operate(int b, int a, char op) {
-    if (op == '+') return a + b;
-    if (op == '-') return a - b;
-    if (op == '*') return a * b;
-    if (op == '/') return a / b; 
-    if (op == '%') return a % b; 
-    if (op == '^') return static_cast<int>(pow(a, b)); 
-    return 0; 
-}
-
-bool is_valid(const string& line) {
-    if (line.empty()) return false;
-
-    int balance = 0;
-    for (char c : line) {
-        if (c == '(') balance++;
-        else if (c == ')') balance--;
-        if (balance < 0) return false;
-    }
-    if (balance != 0) return false;
-
-    char first_char = line.front();
-    char last_char = line.back();
-    if (get_precedence(first_char) != 0 || first_char == ')') return false;
-    if (get_precedence(last_char) != 0 || last_char == '(') return false;
-
-    for (size_t i = 0; i < line.length() - 1; ++i) {
-        char current = line[i];
-        char next = line[i+1];
-
-        if (isdigit(current) && (isdigit(next) || next == '(')) return false;
-        if (current == ')' && (isdigit(next) || next == '(')) return false;
-        if (get_precedence(current) != 0 && (get_precedence(next) != 0 || next == ')')) return false;
-        if (current == '(' && (get_precedence(next) != 0 || next == ')')) return false;
-    }
-    
-    return true;
-}
-
-void calculate(string postfix){
-    stack<int> nums;
-
-    for (ull i = 0; i < postfix.length(); ++i) {
-        char cur = postfix[i];
-        if (isdigit(cur)) {
-            string num_str;
-            while (i < postfix.length() && isdigit(postfix[i])) {
-                num_str += postfix[i];
-                i++;
-            }
-            nums.push(stoi(num_str));
+pack split(const string& L){
+    pack S1;
+    string cur;
+    for(char c : L){
+        if(c == '&'){
+            if (!cur.empty()) S1.insert(cur);
+            cur.clear();
         }
-        else if (isspace(cur)) {
-            continue;
+        else if(c!='(' && c!=')'){
+            cur += c;
         }
-        else {
-            if (nums.size() < 2) {
-                cout << "error." << endl;
-                return;
-            }
+    }
+    if (!cur.empty()) S1.insert(cur);
+    cur.clear();
+    return S1;
+}
 
-            int operand2 = nums.top();
-            nums.pop();
-            int operand1 = nums.top();
-            nums.pop();
+set<string> parseClause(const string& clause_str) {
+    set<string> literals;
+    string current_literal;
+    for (char ch : clause_str) {
+        if (ch == '|') {
+            if (!current_literal.empty()) {
+                literals.insert(current_literal);
+            }
+            current_literal.clear();
+        } else {
+            current_literal += ch;
+        }
+    }
+    if (!current_literal.empty()) {
+        literals.insert(current_literal);
+    }
+    return literals;
+}
+
+// (您填充的三个函数是正确的，保持不变)
+bool canDissolve(const set<string>& literals1, const set<string>& literals2) {
+    for (const string& lit1 : literals1) {
+        // 使用三元运算符让代码更紧凑
+        string complement = (lit1[0] == '!') ? lit1.substr(1) : "!" + lit1;
+        if (literals2.count(complement)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// 重构后的 Res，接收解析好的集合
+string Res(const set<string>& literals1, const set<string>& literals2) {
+    for (const string& lit1 : literals1) {
+        string complement = (lit1[0] == '!') ? lit1.substr(1) : "!" + lit1;
+        if (literals2.count(complement)) {
+            set<string> merged_literals;
+            // 将两个集合中不参与消解的文字合并
+            for (const string& l : literals1) if (l != lit1) merged_literals.insert(l);
+            for (const string& l : literals2) if (l != complement) merged_literals.insert(l);
             
-            char op = cur;
-
-            if ((op == '/' || op == '%') && operand2 == 0) {
-                cout << "Divide 0." << endl;
-                return;
+            // 将合并后的集合重新组合成字符串
+            string result_string;
+            for (auto it = merged_literals.begin(); it != merged_literals.end(); ++it) {
+                result_string += *it;
+                if (next(it) != merged_literals.end()) {
+                    result_string += "|";
+                }
             }
-            if (op == '^' && operand2 < 0) {
-                cout << "error." << endl;
-                return;
-            }
-
-            nums.push(operate(operand2, operand1, op));
+            return result_string;
         }
     }
-
-    if (nums.size() != 1) {
-        cout << "error." << endl;
-    } 
-    else {
-        cout << nums.top() << endl;
-    }
-    return;
+    return ""; // 如果不能消解，理论上不会执行到这里
 }
 
-string into_postfix(string equation){
-    string postfix;
-    stack<char> ops;
-
-    for(ull i = 0;i<equation.length();i++){
-        char cur = equation[i];
-        if(isdigit(cur)){
-            string num_str;
-            while(i < equation.length() && isdigit(equation[i])){
-                num_str += equation[i];
-                i++;
-            }
-            postfix += num_str;
-            postfix += " ";
-            i--;
-        }
-        else if(cur == '('){
-            ops.push(cur);
-        }
-        else if(cur == ')'){
-            while(!ops.empty() && ops.top() != '('){
-                postfix += ops.top();
-                postfix += " ";
-                ops.pop();
-            }
-            if(!ops.empty()){
-                ops.pop();
-            }
-            else{
-                postfix = "error.";
-                return postfix;
-            }
-        }
-        else{
-            while (!ops.empty() && 
-            ops.top() != '(' && 
-            (get_precedence(ops.top()) > get_precedence(cur) || 
-            (get_precedence(ops.top()) == get_precedence(cur) && 
-            cur != '^'))) {
-                postfix += ops.top();
-                postfix += " ";
-                ops.pop();
-            }
-            ops.push(cur);
-        }
-    }
-    while(!ops.empty()){
-        if(ops.top() == '('){
-            postfix = "error.";
-            return postfix;
-        }
-        else{
-            postfix += ops.top();
-            postfix += " ";
-            ops.pop();
-        }
-    }
-    return postfix;
+bool isNone(const string& C){
+    return C.empty();
 }
 
+
+// ==========================================================
+// 修正后的 dissolution 函数
+// ==========================================================
+bool dissolution(pack& S){
+    while(true){
+        pack new_clauses;
+        
+        for(auto it1 = S.begin(); it1 != S.end(); it1++){
+            for(auto it2 = next(it1); it2 != S.end(); it2++){
+                // 关键：在这里进行一次性解析
+                set<string> literals1 = parseClause(*it1);
+                set<string> literals2 = parseClause(*it2);
+
+                if(canDissolve(literals1, literals2)){
+                    string C = Res(literals1, literals2);
+                    if(isNone(C))
+                        return false;
+                    
+                    if(!S.count(C)){
+                        new_clauses.insert(C);
+                    }
+                }
+            }
+        }
+
+        if(new_clauses.empty())
+            return true;
+        
+        S.insert(new_clauses.begin(), new_clauses.end());
+    }
+}
+
+// ==========================================================
+// 修正后的 solve 函数
+// ==========================================================
 void solve(){
-    string line;
-    cin >> line;
-    stack<int> nums;
-    stack<char> ops;
-    string equation;
-    for(ull i = 0;i<line.size();i++){
-        if(line[i] == '-' && line[i+1] == '-'){
-            equation += "+";
-            i++;
-        }
-        else if(line[i] == '+' && line[i+1] == '-'){
-            equation += "-";
-            i++;
-        }
-        else{
-            equation += line[i];
-        }
-    }
-    if (!is_valid(equation)) {
-        cout << "error." << endl;
-        return;
-    }
-    string postfix_equation = into_postfix(equation);
-    if(postfix_equation == "error."){
-        cout << postfix_equation << endl;
-        return;
-    }
+    string L;
+    getline(cin,L);
+    
+    pack S = split(L); // 只需要一个集合来存放所有子句
 
-    calculate(postfix_equation);
-    return;
+    if(dissolution(S)) // 将集合传入即可
+        cout << "YES" << endl;
+    else 
+        cout << "NO" << endl;
 }
 
 int main(){
-    // freopen("input/ZY4-3.txt","r",stdin);
-
-    int N;
-    cin >> N;
-    while(N--){
-        solve();
-    }
-
+    // freopen("input/2.txt","r",stdin);
+    solve();
+    //p&(p|q)&(p|!q)&(q|!r)&(r|!q) -> NO
+    //(!p|q)&(p|q)&(!q) -> NO
     // freopen("CON","r",stdin);
     system("pause");
+    return 0;
 }

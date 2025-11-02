@@ -75,7 +75,7 @@ void calculate(string postfix){
                 num_str += postfix[i];
                 i++;
             }
-            nums.push(stoi(num_str));
+            nums.push(stoll(num_str));
         }
         else if (isspace(cur)) {
             continue;

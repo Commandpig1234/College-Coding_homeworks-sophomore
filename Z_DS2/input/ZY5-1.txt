@@ -1,0 +1,20 @@
+(a,(b),(c),(d,(m),(n)),(e,(o)),(f),(h))
+
+a
+    b
+    c
+    d
+        m
+        n
+    e
+        o
+    f
+    h
+Degree of tree: 6
+Number of nodes of degree 0: 7
+Number of nodes of degree 1: 1
+Number of nodes of degree 2: 1
+Number of nodes of degree 3: 0
+Number of nodes of degree 4: 0
+Number of nodes of degree 5: 0
+Number of nodes of degree 6: 1
