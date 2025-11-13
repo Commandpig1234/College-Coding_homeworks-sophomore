@@ -25,7 +25,7 @@ void solve(){
     
     for (int i = 0; i < N; ++i){
         int j = i+1;
-        while (j < N && powers[j] - (powers[i]-1) < j - (i-1))//有重叠
+        while (j < N && powers[j] - powers[i] < j - i)//有重叠
             j++;
         //找到空白;冲突段为 i~j-1，共(j-1)-(i-1)个数（j-i）
         int top = powers[i] + (j - i - 1);

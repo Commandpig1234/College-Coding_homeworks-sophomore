@@ -1,0 +1,15 @@
+asdfghjkl
+
+Preorder: gdafjhlks
+Inorder: adfghjkls
+Postorder: afdhksljg
+Tree:
+            s
+        l
+            k
+    j
+        h
+g
+        f
+    d
+        a

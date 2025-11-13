@@ -1,100 +1,112 @@
 #include <iostream>
-#include <vector>
 #include <string>
 #include <algorithm>
-
 using namespace std;
 
 using ll = long long;
 
-const ll LIMIT = 4e18;
-vector<ll> tens_powers(1,1);
-vector<int> num_digits;
-
-vector<int> getDigits(ll x){
-    if (x == 0) return{0};
-    vector<int> digits;
-    while (x > 0){
-        digits.push_back(x % 10);
-        x /= 10;
-    }
-    reverse(digits.begin(), digits.end());
-    return digits;
-}
-
-ll count_num(ll limit, ll num){
+// 计算在1到n的字典序中，以p为前缀的数字有多少个
+ll count_prefix(ll n, ll p) {
     ll count = 0;
-    vector<int> limit_digits = getDigits(limit);
+    ll p1 = p, p2 = p;
 
-    for (size_t length = 1; length < num_digits.size(); length++){
-        ll m_prefix = num / tens_powers[num_digits.size() - length];
-        count += m_prefix - tens_powers[length - 1] + 1;
-    }
-
-    for (size_t length = num_digits.size(); length <= limit_digits.size(); length++){
-        ll m_shifted_prefix = num * tens_powers[length - num_digits.size()];
-
-        ll upper_bound = m_shifted_prefix;
-        if (length != num_digits.size()){
-            ll next_prefix = (num + 1) * tens_powers[length - num_digits.size()];
-            if (next_prefix / tens_powers[length - num_digits.size()] != (num + 1)){
-                upper_bound = LIMIT;
-            }
-            else{
-                upper_bound = next_prefix - 1;
-            }
+    while (p1 <= n) {
+        count += min(n, p2) - p1 + 1;
+        
+        if (p1 > n / 10) {
+            break;
         }
-        upper_bound = min(limit, upper_bound);
-        
-        ll start_length = tens_powers[length - 1];
-        
-        if (upper_bound >= start_length){
-            count += upper_bound - start_length + 1;
+        p1 *= 10;
+
+        if (p2 > (n - 9) / 10) {
+            p2 = n;
+        } else {
+            p2 = p2 * 10 + 9;
         }
     }
     return count;
 }
 
+// 计算在1到n的字典序中，严格小于num的数字有多少个
+ll count_less(ll n, ll num) {
+    string s_num = to_string(num);
+    ll ans = 0;
+    ll prefix = 0;
+
+    for (size_t i = 0; i < s_num.length(); ++i) {
+        int digit = s_num[i] - '0';
+
+        int start_d = (i == 0) ? 1 : 0;
+
+        for (int d = start_d; d < digit; ++d) {
+            ans += count_prefix(n, prefix * 10 + d);
+        }
+        prefix = prefix * 10 + digit;
+        
+        // 如果当前前缀已经大于n，提前结束
+        if (prefix > n) break;
+    }
+    return ans;
+}
 
 void solve(){
     ll num, seq;
     cin >> num >> seq;
 
-    for (int i = 1; i <= 18; ++i){
-        tens_powers.push_back(tens_powers.back() * 10);//{1，10，100，1000，……}
-    }
-    
-    num_digits = getDigits(num);
-
-    if (count_num(num, num) > seq){
-        cout << 0 << endl;
+    // 特殊情况处理
+    if (seq == 1) {
+        // 第1个位置必须是1
+        if (num == 1) {
+            cout << 1 << endl;
+        } else {
+            cout << 0 << endl;
+        }
         return;
     }
 
-    ll low = num;
-    ll high = LIMIT;
-    ll result_N = 0;
+    ll target_count = seq - 1;
 
-    while (low <= high){
+    // 二分查找的下界应该是num，因为N必须至少包含num
+    ll low = num, high = 1e18; 
+    ll ans = 0;
+
+    while (low <= high) {
         ll mid = low + (high - low) / 2;
+        
+        ll count = count_less(mid, num);
 
-        if (count_num(mid, num) >= seq){
-            result_N = mid;
-            high = mid - 1;
-        }
-        else{
+        if (count < target_count) {
             low = mid + 1;
+        } else if (count > target_count) {
+            high = mid - 1;
+        } else {
+            // 找到了满足条件的N，但需要检查mid是否>=num
+            if (mid >= num) {
+                ans = mid;
+                high = mid - 1; // 继续寻找更小的解
+            } else {
+                low = mid + 1;
+            }
         }
     }
 
-    cout << result_N << endl;
+    if (ans == 0) {
+        cout << 0 << endl;
+    } else {
+        // 最终验证
+        if (count_less(ans, num) == target_count && ans >= num) {
+            cout << ans << endl;
+        } else {
+            cout << 0 << endl;
+        }
+    }
 }
 
 int main(){
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    // freopen("input/30.txt","r",stdin);
+    freopen("input/30.txt","r",stdin);
 
     solve();
 
