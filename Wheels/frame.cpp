@@ -7,7 +7,7 @@ void solve(){
 }
 
 int main(){
-    // freopen("","r",stdin);
+    // freopen("input/","r",stdin);
 
     solve();
 

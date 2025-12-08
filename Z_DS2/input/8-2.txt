@@ -1,0 +1,35 @@
+(a,(b,(c,(d,())),e))
+2
+1
+2
+1
+2
+1
+2
+1
+
+generic list: (a,(b,(c,(d,())),e))
+free head node
+free list node
+generic list: ((b,(c,(d,())),e))
+destroy tail
+free list node
+generic list: (b,(c,(d,())),e)
+free head node
+free list node
+generic list: ((c,(d,())),e)
+destroy tail
+free list node
+generic list: (c,(d,()))
+free head node
+free list node
+generic list: ((d,()))
+destroy tail
+free list node
+generic list: (d,())
+free head node
+free list node
+generic list: (())
+destroy tail
+free list node
+generic list: ()
